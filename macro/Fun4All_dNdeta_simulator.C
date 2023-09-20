@@ -262,6 +262,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
 
   InputManagers();
 
+  cout << "Your final output path is " << DstOut::OutputDir << endl;
   Fun4AllDstOutputManager *out = new Fun4AllDstOutputManager("DSTOUT", outputRecoFile);
   se->registerOutputManager(out);
 
