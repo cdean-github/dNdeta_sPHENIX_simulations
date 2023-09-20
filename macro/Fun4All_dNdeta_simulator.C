@@ -1,7 +1,10 @@
 #ifndef MACRO_FUN4ALLG4SPHENIX_C
 #define MACRO_FUN4ALLG4SPHENIX_C
 
+#include <ctime>
 #include <dirent.h>
+#include <gsl/gsl_rng.h>
+#include <unistd.h>
 
 #include <GlobalVariables.C>
 
@@ -32,7 +35,7 @@
 #include <phool/PHRandomSeed.h>
 #include <phool/recoConsts.h>
 
-#include <RooUnblindPrecision.h>
+//#include <RooUnblindPrecision.h>
 
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libffamodules.so)
@@ -55,6 +58,27 @@ bool checkForFile(string dir, string base) {
   return fileExists;
 }
 
+class Deleter
+{
+ public:
+  void operator()(gsl_rng *rng) const { gsl_rng_free(rng); }
+};
+
+//https://stackoverflow.com/questions/478898/how-do-i-execute-a-command-and-get-the-output-of-the-command-within-c-using-po
+std::string exec(const char* cmd)
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
+}
+
 int Fun4All_dNdeta_simulator(const int nEvents = 1,
                              const string &outputDir = "./",
                              const string &outputFile = "G4sPHENIX-000-0000.root",
@@ -63,6 +87,42 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
                              const bool fullSim = true,
                              const bool turnOnMagnet = true)
 {
+  // Get base file name
+  DstOut::OutputDir = outputDir;
+  string outputDirLastChar = DstOut::OutputDir.substr(DstOut::OutputDir.size() - 1, 1);
+  if (outputDirLastChar != "/") DstOut::OutputDir += "/";
+
+  unsigned int revisionWidth = 5;
+  unsigned int revisionNumber = 0;
+  ostringstream dstRevision;
+  dstRevision << setfill('0') << setw(revisionWidth) << to_string(revisionNumber);
+  DstOut::OutputDir += "dstSet_" + dstRevision.str();
+  while (checkForDir(DstOut::OutputDir)) 
+  {
+    bool dstFileStatus = checkForFile(DstOut::OutputDir, outputFile);
+    if (!dstFileStatus) break;
+    DstOut::OutputDir = DstOut::OutputDir.substr(0, DstOut::OutputDir.size() - revisionWidth);
+    revisionNumber++;
+    dstRevision.str("");
+    dstRevision.clear();
+    dstRevision << setfill('0') << setw(revisionWidth) << to_string(revisionNumber);
+    DstOut::OutputDir += dstRevision.str();
+  }
+
+  string productionDir = DstOut::OutputDir + "/inProduction";
+  string outputRecoFile = productionDir + "/" + outputFile;
+  string makeDirectory = "mkdir -p " + productionDir;
+  system(makeDirectory.c_str());
+
+  //Now set a fixed random seed and get metadata
+  time_t now = time(0);
+cout << "The time is " << asctime(localtime(&now)) << endl;
+
+char hostname[HOST_NAME_MAX];
+char username[LOGIN_NAME_MAX];
+gethostname(hostname, HOST_NAME_MAX);
+getlogin_r(username, LOGIN_NAME_MAX);
+cout << "Hostname: " << hostname << ", username: " << username << endl;
   // General F4A setup
   Input::VERBOSITY = 0;
   Fun4AllServer *se = Fun4AllServer::instance();
@@ -71,14 +131,26 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   // Make a reproducible set o frandom seeds
   PHRandomSeed::Verbosity(1);
   recoConsts *rc = recoConsts::instance();
-  bool generate_seed = false;
+  bool fix_seed = true;
 
-  if (generate_seed)
+  if (fix_seed)
   {
-    RooRealVar dummyVal("dummy", "", 0);
-    RooUnblindPrecision blindVal("blindVal", "blindVal", outputFile.c_str(), nEvents, skip + 1, dummyVal, kFALSE);
-    rc->set_IntFlag("RANDOMSEED", abs(ceil(blindVal.getVal() * 1e2)));
+    std::unique_ptr<gsl_rng, Deleter>  m_rng;
+    const uint seed = PHRandomSeed();
+    m_rng.reset(gsl_rng_alloc(gsl_rng_mt19937));
+    gsl_rng_set(m_rng.get(), seed);
+    int myRandomSeed = abs(ceil(gsl_rng_uniform_pos(m_rng.get())*10e8));
+cout << "gsl seed is " << myRandomSeed << endl;
+    rc->set_IntFlag("RANDOMSEED", myRandomSeed);
   }
+
+  cout << "The top level random seed is " << rc->get_IntFlag("RANDOMSEED") << endl;
+
+  string gitHash = exec("git rev-parse --short HEAD");
+
+  cout << "The git hash is " << gitHash << endl;
+
+return 0;
 
   //===============
   // conditions DB flags
@@ -170,33 +242,6 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   //======================
   // Write the DST
   //======================
-
-  // Get base file name
-  DstOut::OutputDir = outputDir;
-  string outputDirLastChar = DstOut::OutputDir.substr(DstOut::OutputDir.size() - 1, 1);
-  if (outputDirLastChar != "/") DstOut::OutputDir += "/";
-
-  unsigned int revisionWidth = 5;
-  unsigned int revisionNumber = 0;
-  ostringstream dstRevision;
-  dstRevision << setfill('0') << setw(revisionWidth) << to_string(revisionNumber);
-  DstOut::OutputDir += "dstSet_" + dstRevision.str();
-  while (checkForDir(DstOut::OutputDir)) 
-  {
-    bool dstFileStatus = checkForFile(DstOut::OutputDir, outputFile);
-    if (!dstFileStatus) break;
-    DstOut::OutputDir = DstOut::OutputDir.substr(0, DstOut::OutputDir.size() - revisionWidth);
-    revisionNumber++;
-    dstRevision.str("");
-    dstRevision.clear();
-    dstRevision << setfill('0') << setw(revisionWidth) << to_string(revisionNumber);
-    DstOut::OutputDir += dstRevision.str();
-  }
-
-  string productionDir = DstOut::OutputDir + "/inProduction";
-  string outputRecoFile = productionDir + "/" + outputFile;
-  string makeDirectory = "mkdir -p " + productionDir;
-  system(makeDirectory.c_str());
 
   Enable::DSTOUT = true;
 
