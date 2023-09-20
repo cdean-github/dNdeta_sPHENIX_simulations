@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# ROOT, condor and F4A stuff
+*.root
+macros/dstSet_*
+macros/condor
