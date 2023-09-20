@@ -1,11 +1,12 @@
 // Tell emacs that this is a C++ source
 //  -*- C++ -*-.
-#ifndef FFAMODULES_HEADRECO_H
-#define FFAMODULES_HEADRECO_H
+#ifndef METADATACONTAINER_H
+#define METADATACONTAINER_H
 
 #include <fun4all/SubsysReco.h>
 
 #include <string>  // for string
+#include <vector>
 
 class PHCompositeNode;
 
@@ -16,9 +17,8 @@ class MetadataContainer : public SubsysReco
   ~MetadataContainer() override {}
   int Init(PHCompositeNode *topNode) override;
   int InitRun(PHCompositeNode *topNode) override;
-  int process_event(PHCompositeNode *topNode) override;
 
-  void addMetadataStrings(std::vector<std::pair<std::string, std::string>> inputInfo) { m_metadata = inputInfo };
+  void addMetadataStrings(std::vector<std::pair<std::string, std::string>> inputInfo) { m_metadata = inputInfo; };
 
  protected:
    

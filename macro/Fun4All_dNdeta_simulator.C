@@ -35,10 +35,11 @@
 #include <phool/PHRandomSeed.h>
 #include <phool/recoConsts.h>
 
-//#include <RooUnblindPrecision.h>
+#include <metadata/MetadataContainer.h>
 
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libffamodules.so)
+R__LOAD_LIBRARY(libmetadatacontainer.so)
 
 bool checkForDir(string name) {
   DIR *dir = opendir(name.c_str());
@@ -85,7 +86,9 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
                              const int skip = 0,
                              const string generator = "PYTHIA8",
                              const bool fullSim = true,
-                             const bool turnOnMagnet = true)
+                             const bool turnOnMagnet = true,
+                             const bool idealAlignment = true,
+                             const string logFile = "logFile.txt")
 {
   // Get base file name
   DstOut::OutputDir = outputDir;
@@ -114,24 +117,15 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   string makeDirectory = "mkdir -p " + productionDir;
   system(makeDirectory.c_str());
 
-  //Now set a fixed random seed and get metadata
-  time_t now = time(0);
-cout << "The time is " << asctime(localtime(&now)) << endl;
-
-char hostname[HOST_NAME_MAX];
-char username[LOGIN_NAME_MAX];
-gethostname(hostname, HOST_NAME_MAX);
-getlogin_r(username, LOGIN_NAME_MAX);
-cout << "Hostname: " << hostname << ", username: " << username << endl;
   // General F4A setup
   Input::VERBOSITY = 0;
   Fun4AllServer *se = Fun4AllServer::instance();
   se->Verbosity(Input::VERBOSITY);
 
-  // Make a reproducible set o frandom seeds
+  // Make a reproducible set of random seeds
   PHRandomSeed::Verbosity(1);
   recoConsts *rc = recoConsts::instance();
-  bool fix_seed = true;
+  bool fix_seed = false;
 
   if (fix_seed)
   {
@@ -140,17 +134,8 @@ cout << "Hostname: " << hostname << ", username: " << username << endl;
     m_rng.reset(gsl_rng_alloc(gsl_rng_mt19937));
     gsl_rng_set(m_rng.get(), seed);
     int myRandomSeed = abs(ceil(gsl_rng_uniform_pos(m_rng.get())*10e8));
-cout << "gsl seed is " << myRandomSeed << endl;
     rc->set_IntFlag("RANDOMSEED", myRandomSeed);
   }
-
-  cout << "The top level random seed is " << rc->get_IntFlag("RANDOMSEED") << endl;
-
-  string gitHash = exec("git rev-parse --short HEAD");
-
-  cout << "The git hash is " << gitHash << endl;
-
-return 0;
 
   //===============
   // conditions DB flags
@@ -283,6 +268,40 @@ return 0;
   //-----------------
   // Event processing
   //-----------------
+  //Put together the metadata
+  time_t now = time(0);
+  char hostname[HOST_NAME_MAX];
+  char username[LOGIN_NAME_MAX];
+  gethostname(hostname, HOST_NAME_MAX);
+  getlogin_r(username, LOGIN_NAME_MAX);
+  string getSeeds = "grep 'seed:' " + logFile;
+  
+  std::vector<std::pair<std::string, std::string>> metadataInfo;
+  std::pair<std::string, std::string> theDate("DATE/TIME", asctime(localtime(&now)));
+  std::pair<std::string, std::string> theHostname("HOSTNAME", hostname);
+  std::pair<std::string, std::string> theUsername("USERNAME", username);
+  std::pair<std::string, std::string> theVersion("SOFTWARE VERSION", exec("echo $OFFLINE_MAIN | awk -F \"/\" '{print $NF}'"));
+  std::pair<std::string, std::string> theHash("GIT HASH", exec("git rev-parse --short HEAD"));
+  std::pair<std::string, std::string> theGenerator("GENERATOR", generator);
+  std::pair<std::string, std::string> theMagnet("MAGNET", turnOnMagnet ? "ON" : "OFF");
+  std::pair<std::string, std::string> theSimulation("SIMULATION", fullSim ? "WITH DETECTORS" : "GENERATOR ONLY");
+  std::pair<std::string, std::string> theAlignment("ALIGNMENT", idealAlignment ? "IDEAL" : "MISALIGNED");
+  std::pair<std::string, std::string> theSeeds("SEEDS", exec(getSeeds.c_str()));
+  metadataInfo.push_back(theDate);
+  metadataInfo.push_back(theHostname);
+  metadataInfo.push_back(theUsername);
+  metadataInfo.push_back(theVersion);
+  metadataInfo.push_back(theHash);
+  metadataInfo.push_back(theGenerator);
+  metadataInfo.push_back(theMagnet);
+  metadataInfo.push_back(theSimulation);
+  metadataInfo.push_back(theAlignment);
+  metadataInfo.push_back(theSeeds);
+
+  MetadataContainer *myMetadata = new MetadataContainer("METADATA");
+  myMetadata->Verbosity(1);
+  myMetadata->addMetadataStrings(metadataInfo);
+  se->registerSubsystem(myMetadata);
 
   // if we use a negative number of events we go back to the command line here
   if (nEvents < 0)

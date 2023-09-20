@@ -1,10 +1,11 @@
 #include "MetadataContainer.h"
 
-#include "Metadata.h"
+#include <metadata/Metadata.h>
 
 #include <fun4all/Fun4AllReturnCodes.h>
 #include <fun4all/Fun4AllServer.h>
 #include <fun4all/SubsysReco.h>  // for SubsysReco
+#include <fun4all/Fun4AllBase.h> 
 
 #include <phool/PHCompositeNode.h>
 #include <phool/PHIODataNode.h>    // for PHIODataNode
@@ -12,13 +13,6 @@
 #include <phool/PHNodeIterator.h>  // for PHNodeIterator
 #include <phool/PHObject.h>        // for PHObject
 #include <phool/getClass.h>
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#include <HepMC/GenEvent.h>
-#pragma GCC diagnostic pop
-
-#include <HepMC/HeavyIon.h>  // for HeavyIon
 
 #include <iterator>  // for operator!=, reverse_iterator
 #include <map>       // for _Rb_tree_iterator
@@ -44,5 +38,7 @@ int MetadataContainer::InitRun(PHCompositeNode *topNode)
 {
   Metadata *metadata = findNode::getClass<Metadata>(topNode, "Metadata");
   for (auto &info : m_metadata) metadata->set_stringval(info.first, info.second);
+  if (Verbosity() >= VERBOSITY_SOME) metadata->identify();
+
   return Fun4AllReturnCodes::EVENT_OK;
 }

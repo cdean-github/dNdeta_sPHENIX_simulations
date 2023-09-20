@@ -2,21 +2,35 @@
 
 #include <cmath>    // for NAN
 #include <utility>  // for pair
+#include <phool/phool.h>
+
+PHObject* Metadata::CloneMe() const
+{
+  std::cout << "Metadata::CloneMe() is not implemented in daugther class" << std::endl;
+  return nullptr;
+}
+
+void Metadata::Reset()
+{
+  std::cout << PHWHERE << "ERROR Reset() not implemented by daughter class" << std::endl;
+  return;
+}
+
 
 void Metadata::identify(std::ostream &out) const
 {
-  out << "identify yourself: I am an Metadata Object" << std::endl;
-  auto iter = m_StringRunProperties.begin();
-  while (iter != m_StringRunProperties.end())
+  out << "Metadata information" << std::endl;
+  auto iters = m_StringRunProperties.begin();
+  while (iters != m_StringRunProperties.end())
   {
-    out << iter->first << ": " << iter->second << std::endl;
-    ++iter;
+    out << iters->first << ": " << iters->second << std::endl;
+    ++iters;
   }
-  auto iter = m_IntRunProperties.begin();
-  while (iter != m_IntRunProperties.end())
+  auto iteri = m_IntRunProperties.begin();
+  while (iteri != m_IntRunProperties.end())
   {
-    out << iter->first << ": " << iter->second << std::endl;
-    ++iter;
+    out << iteri->first << ": " << iteri->second << std::endl;
+    ++iteri;
   }
   auto iterf = m_FloatRunProperties.begin();
   while (iterf != m_FloatRunProperties.end())
@@ -29,7 +43,8 @@ void Metadata::identify(std::ostream &out) const
 
 int Metadata::isValid() const
 {
-  return ((RunNumber) ? 1 : 0);  // return 1 if runnumber not zero
+  std::cout << PHWHERE << "isValid not implemented by daughter class" << std::endl;
+  return 0;
 }
 
 void Metadata::set_floatval(const std::string &name, const float fval)
@@ -62,12 +77,12 @@ int Metadata::get_intval(const std::string &name) const
   return -999999;
 }
 
-void Metadata::set_stringval(const std::string &name, const string sval)
+void Metadata::set_stringval(const std::string &name, const std::string sval)
 {
   m_StringRunProperties[name] = sval;
 }
 
-int Metadata::get_stringval(const std::string &name) const
+std::string Metadata::get_stringval(const std::string &name) const
 {
   std::map<std::string, std::string>::const_iterator iter = m_StringRunProperties.find(name);
   if (iter != m_StringRunProperties.end())

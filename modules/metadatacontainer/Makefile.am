@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libmetadata.la
+lib_LTLIBRARIES = libmetadatacontainer.la
 
 AM_CPPFLAGS = \
   -I$(includedir) \
@@ -11,22 +11,27 @@ AM_LDFLAGS = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib
 
-pkginclude_HEADERS = Metadata.h
+pkginclude_HEADERS = MetadataContainer.h
 
-libmetadata_la_SOURCES = \
-  $(ROOTDICTS) \
-  Metadata.cc
+ROOTDICTS = MetadataContainer_Dict.cc
 
-libmetadata_la_LIBADD = \
+pcmdir = $(libdir)
+
+nobase_dist_pcm_DATA = MetadataContainer_Dict_rdict.pcm
+
+libmetadatacontainer_la_SOURCES = MetadataContainer.cc
+
+libmetadatacontainer_la_LIBADD = \
+  -lmetadata \
   -lfun4all \
-  -lphool
+  -lSubsysReco
 
 BUILT_SOURCES = testexternals.cc
 
-noinst_PROGRAMS = testexternals
+noinst_PROGRAMS =  testexternals
 
 testexternals_SOURCES = testexternals.cc
-testexternals_LDADD = libmetadata.la
+testexternals_LDADD = libmetadatacontainer.la
 
 testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@

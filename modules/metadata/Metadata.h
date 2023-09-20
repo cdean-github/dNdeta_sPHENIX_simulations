@@ -8,13 +8,16 @@
 #include <cmath>
 #include <iostream>
 #include <string>  // for string
+#include <map>
 
 ///
 class Metadata : public PHObject
 {
  public:
+  Metadata() = default;
+
   /// dtor
-  ~Metadata() override {}
+  virtual ~Metadata() = default;
 
   PHObject *CloneMe() const override;
 
@@ -29,14 +32,14 @@ class Metadata : public PHObject
   /// isValid returns non zero if object contains valid data
   int isValid() const override;
 
-  virtual void set_floatval(const std::string & /*name*/, const float /*fval*/) { return; }
-  virtual float get_floatval(const std::string & /*name*/) const { return NAN; }
+  void set_floatval(const std::string & /*name*/, const float /*fval*/);
+  float get_floatval(const std::string & /*name*/) const;
 
-  virtual void set_intval(const std::string & /*name*/, const int /*ival*/) { return; }
-  virtual int get_intval(const std::string & /*name*/) const { return -999999; }
+  void set_intval(const std::string & /*name*/, const int /*ival*/);
+  int get_intval(const std::string & /*name*/) const;
 
-  virtual void set_stringval(const std::string & /*name*/, const string /*ival*/) { return; }
-  virtual int get_stringval(const std::string & /*name*/) const { return "Empty"; }
+  void set_stringval(const std::string & /*name*/, const std::string /*ival*/);
+  std::string get_stringval(const std::string & /*name*/) const;
 
   /// switches off the pesky virtual warning messages
   void NoWarning(const int i = 1);
@@ -44,7 +47,11 @@ class Metadata : public PHObject
  private:
   void warning(const std::string &func) const;
 
-  ClassDefOverride(Metadata, 1)
+  std::map<std::string, int> m_IntRunProperties;
+  std::map<std::string, float> m_FloatRunProperties;
+  std::map<std::string, std::string> m_StringRunProperties;
+
+  //ClassDefOverride(Metadata, 1)
 };
 
 #endif
