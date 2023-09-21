@@ -29,13 +29,21 @@ if myShell not in goodShells:
     sys.exit()
 
 softwareVersion = 'ana.376'
+
 simType = 'generatorOnly' if args.generatorOnly else 'fullSim'
+simTypeBool = 'true'  if args.generatorOnly else 'false'
+
 magnet = 'magOn' if args.magOn else 'magOff'
-alignment = 'detectorMisaligned' if args.misalign else 'detectorAligned' 
+magnetBool = 'true'  if args.magOn else 'false'
+
+alignment = 'detectorMisaligned' if args.misalign else 'detectorAligned'
+alignmentBool = 'true'  if args.misalign else 'false'
+
 outputDir = '/sphenix/tg/tg01/bulk/dNdeta_INTT_run2023/data/simulation/{0}/{1}/{2}/{3}/{4}'.format(softwareVersion, inputType, simType, magnet, alignment)
-outputFile = 'dNdeta_sim_{0}_{1:3d}_$INT(Process + {2},%05d).root'.format(inputType, args.revisionNumber, args.startNumber)
+outputFile = 'dNdeta_sim_{0}_{1:03d}'.format(inputType, args.revisionNumber, args.startNumber)
 
 nJob = math.ceil(args.nTotEvents/args.nEventsPerJob)
+
 
 memory = 12 if inputType == "HIJING" else 4
 
@@ -44,22 +52,22 @@ def makeCondorJob():
     myOutputPath = os.getcwd()
     condorDir = "{}/condorJob".format(myOutputPath)
     os.makedirs("{}/log".format(condorDir), exist_ok=True)
-    os.makedirs("{}/fileLists".format(condorDir), exist_ok=True)
     condorFileName = "{0}/my{1}.job".format(condorDir, inputType)
     condorFile = open("{}".format(condorFileName), "w")
     condorFile.write("Universe           = vanilla\n")
     condorFile.write("initialDir         = {}\n".format(myOutputPath))
-    condorFile.write("Executable         = $(initialDir)/runSimulation.sh.sh\n")
+    condorFile.write("Executable         = $(initialDir)/runSimulation.sh\n")
     condorFile.write("PeriodicHold       = (NumJobStarts>=1 && JobStatus == 1)\n")
     condorFile.write("request_memory     = {}GB\n".format(memory))
     condorFile.write("Priority           = 20\n")
     condorFile.write("job_lease_duration = 3600\n")
     condorFile.write("condorDir          = $(initialDir)/condorJob\n")
-    condorOutputInfo = "$(condorDir)/log/condor-{0}-$INT(Process,%05d)".format(inputType)
+    condorFile.write("fileNumber          = $INT(Process) + {} \n".format(args.startNumber))
+    condorOutputInfo = "$(condorDir)/log/condor-{0}-{1:03d}-$INT(fileNumber,%05d)".format(inputType, args.revisionNumber)
     condorFile.write("Output             = {0}.out\n".format(condorOutputInfo))
     condorFile.write("Error              = {0}.err\n".format(condorOutputInfo))
     condorFile.write("Log                = {0}.log\n".format(condorOutputInfo))
-    condorFile.write("Arguments          = \"{0} {1} {2} {3} {4} {5} {6} {7}\"\n".format(args.nEventsPerJob, outputDir, outputFile, inputType, args.generatorOnly, args.magOn, alignment, softwareVersion))
+    condorFile.write("Arguments          = \"{0} {1} {2}_$INT(fileNumber,%05d).root {3} {4} {5} {6} {7}\"\n".format(args.nEventsPerJob, outputDir, outputFile, inputType, simTypeBool, magnetBool, alignmentBool, softwareVersion))
     condorFile.write("Queue {}\n".format(nJob))
     print("Submission setup complete!")
     print("This setup will submit {} subjobs".format(nJob))
