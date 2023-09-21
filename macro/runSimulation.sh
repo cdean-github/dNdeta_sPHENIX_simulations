@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export HOME=/sphenix/u/${LOGNAME}
-source /opt/sphenix/core/bin/sphenix_setup.sh -n $9
+source /opt/sphenix/core/bin/sphenix_setup.sh -n $8
 
 export SPHENIX=/sphenix/u/cdean/sPHENIX
 export SPHENIX=$HOME/sPHENIX
@@ -30,17 +30,16 @@ Software version: $9
 Output file: $3
 Output dir: $2
 Number of events: $1
-Skip: $4
-Generator: $5
-fullSim: $6
-turnOnMagnet: $7
-idealAlignment: $8
+Generator: $4
+fullSim: $5
+turnOnMagnet: $6
+idealAlignment: $7
 =====================================
 EOF
 
 # Run Fun4all. Send output to stdout but also capture to temporary local file
-echo running root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",,$4,\"$5\",$6,$7,$8,\"${tmpLogFile}\"\)
-root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",$4,\"$5\",$6,$7,$8,\"${tmpLogFile}\"\) | tee ${tmpLogFile}
+echo running root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\"\)
+root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\"\) | tee ${tmpLogFile}
 
 finalPath=`grep 'Your final output path is' ${tmpLogFile} | awk '{print $NF}'`
 

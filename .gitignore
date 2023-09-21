@@ -51,3 +51,4 @@ depcomp
 install-sh
 ltmain.sh
 missing
+condorJob/

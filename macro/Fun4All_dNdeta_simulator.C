@@ -83,7 +83,6 @@ std::string exec(const char* cmd)
 int Fun4All_dNdeta_simulator(const int nEvents = 1,
                              const string &outputDir = "./",
                              const string &outputFile = "G4sPHENIX-000-0000.root",
-                             const int skip = 0,
                              const string generator = "PYTHIA8",
                              const bool fullSim = true,
                              const bool turnOnMagnet = true,
