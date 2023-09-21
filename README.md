@@ -27,7 +27,7 @@ Two modules should be built before running the scripts, `metadata` and `metadata
 alias buildThisProject="mkdir build && cd build && ../autogen.sh --prefix=$MYINSTALL && make && make install && cd ../"
 ```
 Navigate first to `metadata` then `metadatacontainer` and execute the above command. Remember to have your work environment set up to allow local software builds with something like what I keep in my `.bash_profile`
-```
+```bash
 source /opt/sphenix/core/bin/sphenix_setup.sh -n new
 export SPHENIX=/sphenix/u/cdean/sPHENIX
 export MYINSTALL=$SPHENIX/install
