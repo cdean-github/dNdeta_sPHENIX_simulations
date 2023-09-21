@@ -117,7 +117,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   system(makeDirectory.c_str());
 
   // General F4A setup
-  Input::VERBOSITY = 0;
+  Input::VERBOSITY = 1;
   Fun4AllServer *se = Fun4AllServer::instance();
   se->Verbosity(Input::VERBOSITY);
 

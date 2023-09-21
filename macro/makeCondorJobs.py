@@ -45,7 +45,7 @@ outputFile = 'dNdeta-sim-{0}-{1:03d}'.format(inputType, args.revisionNumber, arg
 nJob = math.ceil(args.nTotEvents/args.nEventsPerJob)
 
 
-memory = 12 if inputType == "HIJING" else 4
+memory = 6 if inputType == "HIJING" else 4
 
 def makeCondorJob():
     print("Creating condor submission script for {} simulations".format(inputType))

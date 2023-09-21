@@ -23,7 +23,7 @@ cat << EOF | tee ${metaDataFile}
 Production started: ${d} ${t}
 Production Host: ${HOSTNAME}
 Folder hash: ${gitHash}
-Software version: $9
+Software version: $8
 Output file: $3
 Output dir: $2
 Number of events: $1
