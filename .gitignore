@@ -52,3 +52,4 @@ install-sh
 ltmain.sh
 missing
 condorJob/
+*.out

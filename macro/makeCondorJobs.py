@@ -31,16 +31,16 @@ if myShell not in goodShells:
 softwareVersion = 'ana.376'
 
 simType = 'generatorOnly' if args.generatorOnly else 'fullSim'
-simTypeBool = 'true'  if args.generatorOnly else 'false'
+simTypeBool = 'false'  if args.generatorOnly else 'true'
 
 magnet = 'magOn' if args.magOn else 'magOff'
 magnetBool = 'true'  if args.magOn else 'false'
 
 alignment = 'detectorMisaligned' if args.misalign else 'detectorAligned'
-alignmentBool = 'true'  if args.misalign else 'false'
+alignmentBool = 'false'  if args.misalign else 'true'
 
 outputDir = '/sphenix/tg/tg01/bulk/dNdeta_INTT_run2023/data/simulation/{0}/{1}/{2}/{3}/{4}'.format(softwareVersion, inputType, simType, magnet, alignment)
-outputFile = 'dNdeta_sim_{0}_{1:03d}'.format(inputType, args.revisionNumber, args.startNumber)
+outputFile = 'dNdeta-sim-{0}-{1:03d}'.format(inputType, args.revisionNumber, args.startNumber)
 
 nJob = math.ceil(args.nTotEvents/args.nEventsPerJob)
 
@@ -49,6 +49,7 @@ memory = 12 if inputType == "HIJING" else 4
 
 def makeCondorJob():
     print("Creating condor submission script for {} simulations".format(inputType))
+    os.makedirs("{}".format(outputDir), exist_ok=True)
     myOutputPath = os.getcwd()
     condorDir = "{}/condorJob".format(myOutputPath)
     os.makedirs("{}/log".format(condorDir), exist_ok=True)
@@ -63,11 +64,11 @@ def makeCondorJob():
     condorFile.write("job_lease_duration = 3600\n")
     condorFile.write("condorDir          = $(initialDir)/condorJob\n")
     condorFile.write("fileNumber          = $INT(Process) + {} \n".format(args.startNumber))
-    condorOutputInfo = "$(condorDir)/log/condor-{0}-{1:03d}-$INT(fileNumber,%05d)".format(inputType, args.revisionNumber)
+    condorOutputInfo = "$(condorDir)/log/condor-{0}-{1:03d}-$INT(fileNumber,%04d)".format(inputType, args.revisionNumber)
     condorFile.write("Output             = {0}.out\n".format(condorOutputInfo))
     condorFile.write("Error              = {0}.err\n".format(condorOutputInfo))
     condorFile.write("Log                = {0}.log\n".format(condorOutputInfo))
-    condorFile.write("Arguments          = \"{0} {1} {2}_$INT(fileNumber,%05d).root {3} {4} {5} {6} {7}\"\n".format(args.nEventsPerJob, outputDir, outputFile, inputType, simTypeBool, magnetBool, alignmentBool, softwareVersion))
+    condorFile.write("Arguments          = \"{0} {1} {2}-$INT(fileNumber,%04d).root {3} {4} {5} {6} {7}\"\n".format(args.nEventsPerJob, outputDir, outputFile, inputType, simTypeBool, magnetBool, alignmentBool, softwareVersion))
     condorFile.write("Queue {}\n".format(nJob))
     print("Submission setup complete!")
     print("This setup will submit {} subjobs".format(nJob))

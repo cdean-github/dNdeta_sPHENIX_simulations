@@ -1,11 +1,8 @@
 #!/bin/bash
 
-export HOME=/sphenix/u/${LOGNAME}
 source /opt/sphenix/core/bin/sphenix_setup.sh -n $8
 
-export SPHENIX=/sphenix/u/cdean/sPHENIX
-export SPHENIX=$HOME/sPHENIX
-export MYINSTALL=$SPHENIX/install
+export MYINSTALL=/sphenix/u/cdean/sPHENIX/install
 export LD_LIBRARY_PATH=$MYINSTALL/lib:$LD_LIBRARY_PATH
 export ROOT_INCLUDE_PATH=$MYINSTALL/include:$ROOT_INCLUDE_PATH
 
