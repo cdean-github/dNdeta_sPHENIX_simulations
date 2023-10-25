@@ -14,7 +14,7 @@
 #include <G4_Bbc.C>
 #include <G4_Centrality.C>
 #include <G4_Global.C>
-#include <G4_Input.C>
+#include "G4_Input.C"
 #include <G4_Magnet.C>
 
 #include <Trkr_Clustering.C>
@@ -174,6 +174,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
     INPUTHEPMC::filename = "/sphenix/sim/sim01/sphnxpro/MDC1/sHijing_HepMC/data/sHijing_0_20fm-0000000001-00000.dat";
     INPUTHEPMC::FLOW = true;
     INPUTHEPMC::FERMIMOTION = true;
+
     Input::BEAM_CONFIGURATION = Input::AA_COLLISION;
   }
   else
@@ -229,9 +230,9 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
 
   Enable::DSTOUT = true;
 
-  G4MAGNET::magfield_rescale = (turnOnMagnet == true) ? 1. : 0.;
   MagnetInit();
   MagnetFieldInit();
+  G4MAGNET::magfield_rescale = (turnOnMagnet == true) ? 1. : 0.;
 
   /*
    * Run detector simulation
@@ -244,11 +245,13 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
     Enable::INTT = true;
     Enable::TPC = true;
     Enable::MICROMEGAS = true;
+  }
 
-    G4Init();
-    G4Setup();
+  G4Init();
+  G4Setup();
 
-
+  if (fullSim) 
+  {
     Mvtx_Cells();
     Intt_Cells();
     TrackingInit();
