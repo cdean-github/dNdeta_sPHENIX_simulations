@@ -3,14 +3,14 @@
 
 #include <GlobalVariables.C>
 
-#include <G4_Bbc.C>
-#include <G4_BeamLine.C>
+#include <G4_Mbd.C>
 #include <G4_BlackHole.C>
 #include <G4_CEmc_Albedo.C>
 #include <G4_CEmc_Spacal.C>
 #include <G4_EPD.C>
 #include <G4_HcalIn_ref.C>
 #include <G4_HcalOut_ref.C>
+#include <G4_BeamLine.C>
 #include <G4_Magnet.C>
 #include <G4_PSTOF.C>
 #include <G4_Pipe.C>
@@ -37,56 +37,44 @@
 R__LOAD_LIBRARY(libg4decayer.so)
 R__LOAD_LIBRARY(libg4detectors.so)
 
-void G4Init() {
+void G4Init()
+{
   // Check on invalid combinations
-  if (Enable::CEMC && Enable::CEMCALBEDO) {
-    cout << "Enable::CEMCALBEDO and Enable::CEMC cannot be set simultanously"
-         << endl;
-    gSystem->Exit(1);
+  if (Enable::CEMC && Enable::CEMCALBEDO)
+  {
+      cout << "Enable::CEMCALBEDO and Enable::CEMC cannot be set simultanously" << endl;
+      gSystem->Exit(1);
   }
   // load detector/material macros and execute Init() function
 
-  if (Enable::PIPE)
-    PipeInit();
-  if (Enable::MVTX)
-    MvtxInit();
-  if (Enable::INTT)
-    InttInit();
-  if (Enable::TPC)
-    TPCInit();
-  if (Enable::MICROMEGAS)
-    MicromegasInit();
-  if (Enable::BBC)
-    BbcInit();
-  if (Enable::CEMCALBEDO)
-    CEmcAlbedoInit();
-  if (Enable::CEMC)
-    CEmcInit();
-  if (Enable::HCALIN)
-    HCalInnerInit();
-  if (Enable::MAGNET)
-    MagnetInit();
-  MagnetFieldInit(); // We want the field - even if the magnet volume is
-                     // disabled
-  if (Enable::HCALOUT)
-    HCalOuterInit();
-  if (Enable::PLUGDOOR)
-    PlugDoorInit();
-  if (Enable::EPD)
-    EPDInit();
-  if (Enable::BEAMLINE) {
+  if (Enable::PIPE) PipeInit();
+  if (Enable::MVTX) MvtxInit();
+  if (Enable::INTT) InttInit();
+  if (Enable::TPC) TPCInit();
+  if (Enable::MICROMEGAS) MicromegasInit();
+  if (Enable::MBD) MbdInit();
+  if (Enable::CEMCALBEDO) CEmcAlbedoInit();
+  if (Enable::CEMC) CEmcInit();
+  if (Enable::HCALIN) HCalInnerInit();
+  if (Enable::MAGNET) MagnetInit();
+  MagnetFieldInit(); // We want the field - even if the magnet volume is disabled
+  if (Enable::HCALOUT) HCalOuterInit();
+  if (Enable::PLUGDOOR) PlugDoorInit();
+  if (Enable::EPD) EPDInit();
+  if (Enable::BEAMLINE)
+  {
     BeamLineInit();
-    if (Enable::ZDC) {
+    if (Enable::ZDC)
+    {
       ZDCInit();
     }
   }
-  if (Enable::USER)
-    UserInit();
-  if (Enable::BLACKHOLE)
-    BlackHoleInit();
+  if (Enable::USER) UserInit();
+  if (Enable::BLACKHOLE) BlackHoleInit();
 }
 
-int G4Setup() {
+int G4Setup()
+{
   //---------------
   // Fun4All server
   //---------------
@@ -94,77 +82,71 @@ int G4Setup() {
   Fun4AllServer *se = Fun4AllServer::instance();
 
   PHG4Reco *g4Reco = new PHG4Reco();
-  g4Reco->set_rapidity_coverage(1.1); // according to drawings
+  g4Reco->set_rapidity_coverage(1.1);  // according to drawings
   WorldInit(g4Reco);
-  // PYTHIA 6
-  if (G4P6DECAYER::decayType != EDecayType::kAll) {
+  //PYTHIA 6
+  if (G4P6DECAYER::decayType != EDecayType::kAll)
+  {
     g4Reco->set_force_decay(G4P6DECAYER::decayType);
   }
-  // EvtGen
-  g4Reco->CustomizeEvtGenDecay(EVTGENDECAYER::DecayFile);
+  //EvtGen 
+  g4Reco->CustomizeEvtGenDecay(EVTGENDECAYER::DecayFile); 
 
   double fieldstrength;
   istringstream stringline(G4MAGNET::magfield);
   stringline >> fieldstrength;
-  if (stringline.fail()) { // conversion to double fails -> we have a string
+  if (stringline.fail())
+  {  // conversion to double fails -> we have a string
 
     if (G4MAGNET::magfield.find("sphenix3dbigmapxyz") != string::npos ||
-        G4MAGNET::magfield == "CDB") {
-      g4Reco->set_field_map(G4MAGNET::magfield,
-                            PHFieldConfig::Field3DCartesian);
-    } else {
+        G4MAGNET::magfield == "CDB")
+    {
+      g4Reco->set_field_map(G4MAGNET::magfield, PHFieldConfig::Field3DCartesian);
+    }
+    else
+    {
       g4Reco->set_field_map(G4MAGNET::magfield, PHFieldConfig::kField2D);
     }
-  } else {
-    g4Reco->set_field(fieldstrength); // use const soleniodal field
+  }
+  else
+  {
+    g4Reco->set_field(fieldstrength);  // use const soleniodal field
   }
   g4Reco->set_field_rescale(G4MAGNET::magfield_rescale);
 
-  // the radius is an older protection against overlaps, it is not
-  // clear how well this works nowadays but it doesn't hurt either
+// the radius is an older protection against overlaps, it is not
+// clear how well this works nowadays but it doesn't hurt either
   double radius = 0.;
 
-  if (Enable::PIPE)
-    radius = Pipe(g4Reco, radius);
-  if (Enable::MVTX)
-    radius = Mvtx(g4Reco, radius);
-  if (Enable::INTT)
-    radius = Intt(g4Reco, radius);
-  if (Enable::TPC)
-    radius = TPC(g4Reco, radius);
-  if (Enable::MICROMEGAS)
-    Micromegas(g4Reco);
-  if (Enable::BBC)
-    Bbc(g4Reco);
-  if (Enable::CEMCALBEDO)
-    CEmcAlbedo(g4Reco);
-  if (Enable::CEMC)
-    radius = CEmc(g4Reco, radius, 8);
-  if (Enable::HCALIN)
-    radius = HCalInner(g4Reco, radius, 4);
-  if (Enable::MAGNET)
-    radius = Magnet(g4Reco, radius);
-  if (Enable::HCALOUT)
-    radius = HCalOuter(g4Reco, radius, 4);
-  if (Enable::PLUGDOOR)
-    PlugDoor(g4Reco);
-  if (Enable::EPD)
-    EPD(g4Reco);
-  if (Enable::BEAMLINE) {
+  if (Enable::PIPE) radius = Pipe(g4Reco, radius);
+  if (Enable::MVTX) radius = Mvtx(g4Reco, radius);
+  if (Enable::INTT) radius = Intt(g4Reco, radius);
+  if (Enable::TPC) radius = TPC(g4Reco, radius);
+  if (Enable::MICROMEGAS) Micromegas(g4Reco);
+  if (Enable::MBD) Mbd(g4Reco);
+  if (Enable::CEMCALBEDO) CEmcAlbedo(g4Reco);
+  if (Enable::CEMC) radius = CEmc(g4Reco, radius, 8);
+  if (Enable::HCALIN) radius = HCalInner(g4Reco, radius, 4);
+  if (Enable::MAGNET) radius = Magnet(g4Reco, radius);
+  if (Enable::HCALOUT) radius = HCalOuter(g4Reco, radius, 4);
+  if (Enable::PLUGDOOR) PlugDoor(g4Reco);
+  if (Enable::EPD) EPD(g4Reco);
+  if (Enable::BEAMLINE)
+  {
     BeamLineDefineMagnets(g4Reco);
     BeamLineDefineBeamPipe(g4Reco);
-    if (Enable::ZDC) {
+    if (Enable::ZDC)
+    {
       ZDCSetup(g4Reco);
     }
   }
-  if (Enable::USER)
-    UserDetector(g4Reco);
+  if (Enable::USER) UserDetector(g4Reco);
+
 
   //----------------------------------------
   // BLACKHOLE
 
-  if (Enable::BLACKHOLE)
-    BlackHole(g4Reco, radius);
+  if (Enable::BLACKHOLE) BlackHole(g4Reco, radius);
 
   PHG4TruthSubsystem *truth = new PHG4TruthSubsystem();
   g4Reco->registerSubsystem(truth);
@@ -176,11 +158,11 @@ int G4Setup() {
   return 0;
 }
 
-void ShowerCompress(int verbosity = 0) {
+void ShowerCompress(int verbosity = 0)
+{
   Fun4AllServer *se = Fun4AllServer::instance();
 
-  PHG4DstCompressReco *compress =
-      new PHG4DstCompressReco("PHG4DstCompressReco");
+  PHG4DstCompressReco *compress = new PHG4DstCompressReco("PHG4DstCompressReco");
   compress->AddHitContainer("G4HIT_PIPE");
   compress->AddHitContainer("G4HIT_SVTXSUPPORT");
   compress->AddHitContainer("G4HIT_CEMC_ELECTRONICS");
@@ -214,8 +196,10 @@ void ShowerCompress(int verbosity = 0) {
   return;
 }
 
-void DstCompress(Fun4AllDstOutputManager *out) {
-  if (out) {
+void DstCompress(Fun4AllDstOutputManager *out)
+{
+  if (out)
+  {
     out->StripNode("G4HIT_PIPE");
     out->StripNode("G4HIT_SVTXSUPPORT");
     out->StripNode("G4HIT_CEMC_ELECTRONICS");

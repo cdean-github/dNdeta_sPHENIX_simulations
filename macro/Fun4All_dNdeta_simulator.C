@@ -11,7 +11,6 @@
 #include <DisplayOn.C>
 #include <G4Setup_sPHENIX.C>
 #include <G4_ActsGeom.C>
-#include <G4_Bbc.C>
 #include <G4_Centrality.C>
 #include <G4_Global.C>
 #include "G4_Input.C"
@@ -239,7 +238,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
    */
   if (fullSim) 
   {
-    Enable::BBC = true;
+    Enable::MBD = true;
     Enable::PIPE = true;
     Enable::MVTX = true;
     Enable::INTT = true;
