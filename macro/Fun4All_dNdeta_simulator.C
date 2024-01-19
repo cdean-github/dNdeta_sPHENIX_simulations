@@ -170,7 +170,19 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   else if (generator == "HIJING") 
   {
     Input::HEPMC = true;
-    INPUTHEPMC::filename = "/sphenix/sim/sim01/sphnxpro/MDC1/sHijing_HepMC/data/sHijing_0_20fm-0000000001-00000.dat";
+ 
+    string fileNumber = outputFile;
+    size_t findLastDash = fileNumber.find_last_of("-");
+    if (findLastDash != string::npos) fileNumber.erase(0, findLastDash + 1);
+    string remove_this = ".root";
+    size_t pos = fileNumber.find(remove_this);
+    if (pos != string::npos) fileNumber.erase(pos, remove_this.length());
+
+    unsigned int width = 5;
+    ostringstream correctFileNumber;
+    correctFileNumber << setfill('0') << setw(width) << fileNumber;
+
+    INPUTHEPMC::filename = "/sphenix/sim/sim01/sphnxpro/MDC1/sHijing_HepMC/data/sHijing_0_20fm-0000000001-" + correctFileNumber.str() + ".dat";
     INPUTHEPMC::FLOW = true;
     INPUTHEPMC::FERMIMOTION = true;
 

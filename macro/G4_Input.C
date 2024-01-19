@@ -106,11 +106,11 @@ namespace Input
       //    120e-4,         // approximation from past PHENIX data
       //    6.24,              // As measured by INTT
       //    20 / 29.9792);  // 20cm collision length / speed of light in cm/ns
-      HepMCGen->set_vertex_distribution_mean(0., 0., -10., 0.);
+      HepMCGen->set_vertex_distribution_mean(-0.04, 0.24, -19.8, 0.);
       HepMCGen->set_vertex_distribution_width(
           120e-4,         // approximation from past PHENIX data
           120e-4,         // approximation from past PHENIX data
-          20.0,              // For use with linear z distribution
+          5.2,              // For use with linear z distribution
           20 / 29.9792);  // 20cm collision length / speed of light in cm/ns
 
       break;
@@ -146,7 +146,7 @@ namespace Input
     HepMCGen->set_vertex_distribution_function(
         PHHepMCGenHelper::Gaus,
         PHHepMCGenHelper::Gaus,
-        PHHepMCGenHelper::Uniform,  //Remember to change this back to Gaus!!!
+        PHHepMCGenHelper::Gaus,
         PHHepMCGenHelper::Gaus);
   }
 

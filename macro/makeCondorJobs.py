@@ -28,7 +28,7 @@ if myShell not in goodShells:
     print("Your shell {} was not recognised".format(myShell))
     sys.exit()
 
-softwareVersion = 'ana.388'
+softwareVersion = 'ana.398'
 
 simType = 'generatorOnly' if args.generatorOnly else 'fullSim'
 simTypeBool = 'false'  if args.generatorOnly else 'true'
