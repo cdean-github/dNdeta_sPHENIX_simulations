@@ -40,9 +40,11 @@ magnetBool = 'true'  if args.magOn else 'false'
 alignment = 'detectorMisaligned' if args.misalign else 'detectorAligned'
 alignmentBool = 'false'  if args.misalign else 'true'
 
+pType = args.particleType
+
 if inputType == "SIMPLE":
-  outputDir = '/sphenix/tg/tg01/bulk/dNdeta_INTT_run2023/data/simulation/{0}/{1}/{2}/{3}/{4}/{5}'.format(softwareVersion, inputType, particleType, simType, magnet, alignment) 
-  outputFile = 'dNdeta-sim-{0}-{1}-{2:03d}'.format(inputType, particleType, args.revisionNumber, args.startNumber)
+  outputDir = '/sphenix/tg/tg01/bulk/dNdeta_INTT_run2023/data/simulation/{0}/{1}/{2}/{3}/{4}/{5}'.format(softwareVersion, inputType, pType, simType, magnet, alignment) 
+  outputFile = 'dNdeta-sim-{0}-{1}-{2:03d}'.format(inputType, pType, args.revisionNumber, args.startNumber)
 else:
   outputDir = '/sphenix/tg/tg01/bulk/dNdeta_INTT_run2023/data/simulation/{0}/{1}/{2}/{3}/{4}'.format(softwareVersion, inputType, simType, magnet, alignment)
   outputFile = 'dNdeta-sim-{0}-{1:03d}'.format(inputType, args.revisionNumber, args.startNumber)
@@ -73,7 +75,7 @@ def makeCondorJob():
     condorFile.write("Output             = {0}.out\n".format(condorOutputInfo))
     condorFile.write("Error              = {0}.err\n".format(condorOutputInfo))
     condorFile.write("Log                = {0}.log\n".format(condorOutputInfo))
-    condorFile.write("Arguments          = \"{0} {1} {2}-$INT(fileNumber,%05d).root {3} {4} {5} {6} {7} {8}\"\n".format(args.nEventsPerJob, outputDir, outputFile, inputType, simTypeBool, magnetBool, alignmentBool, softwareVersion, particleType))
+    condorFile.write("Arguments          = \"{0} {1} {2}-$INT(fileNumber,%05d).root {3} {4} {5} {6} {7} {8}\"\n".format(args.nEventsPerJob, outputDir, outputFile, inputType, simTypeBool, magnetBool, alignmentBool, softwareVersion, pType))
     condorFile.write("Queue {}\n".format(nJob))
     print("Submission setup complete!")
     print("This setup will submit {} subjobs".format(nJob))
