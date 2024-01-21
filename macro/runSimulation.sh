@@ -35,8 +35,8 @@ idealAlignment: $7
 EOF
 
 # Run Fun4all. Send output to stdout but also capture to temporary local file
-echo running root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\"\)
-root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\"\) | tee ${tmpLogFile}
+echo running root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\",\"$9\"\)
+root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\",\"$9\"\) | tee ${tmpLogFile}
 
 finalPath=`grep 'Your final output path is' ${tmpLogFile} | awk '{print $NF}'`
 

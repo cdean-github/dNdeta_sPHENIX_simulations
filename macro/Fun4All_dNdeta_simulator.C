@@ -86,7 +86,8 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
                              const bool fullSim = true,
                              const bool turnOnMagnet = true,
                              const bool idealAlignment = true,
-                             const string logFile = "logFile.txt")
+                             const string logFile = "logFile.txt",
+                             const string particleType = "pi-")
 {
   // Get base file name
   DstOut::OutputDir = outputDir;
@@ -198,13 +199,13 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
 
   if (generator == "SIMPLE") 
   {
-    INPUTGENERATOR::SimpleEventGenerator[0]->add_particles("pi-", 5);
+    INPUTGENERATOR::SimpleEventGenerator[0]->add_particles(particleType, 1);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus, 
                                                                               PHG4SimpleEventGenerator::Gaus,
                                                                               PHG4SimpleEventGenerator::Gaus);
-    INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_mean(0., 0., 0.);
-    INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_width(0.01, 0.01, 5.);
-    INPUTGENERATOR::SimpleEventGenerator[0]->set_eta_range(-1, 1);
+    INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_mean(0., 0., 19.8);
+    INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_width(120e-4, 120e-4, 5.2);
+    INPUTGENERATOR::SimpleEventGenerator[0]->set_eta_range(-0.5, 2.5);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_phi_range(-M_PI, M_PI);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_pt_range(0.1, 20.);
   }
