@@ -12,7 +12,7 @@ parser.add_argument('--magOn', help='Enable the magnetic field', action="store_t
 parser.add_argument('--misalign', help='Misalign the detectors', action="store_true")
 parser.add_argument('--startNumber', default=0, type=int, help='Set first file number')
 parser.add_argument('--revisionNumber', default=0, type=int, help='Set file revision number')
-parser.add_argument('--particleType', default="pi-", type=int, help='Set particle gun species')
+parser.add_argument('--particleType', default="pi-", help='Set particle gun species')
 
 args = parser.parse_args()
 
