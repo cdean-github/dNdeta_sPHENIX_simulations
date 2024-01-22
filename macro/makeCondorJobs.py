@@ -4,7 +4,7 @@ import argparse
 import math
 
 parser = argparse.ArgumentParser(description='dN/deta Simulation Job Creator')
-parser.add_argument('-i', '--generator', default="HIJING", help='Generator: PYTHIA8, HIJING, SIMPLE')
+parser.add_argument('-i', '--generator', default="HIJING", help='Generator: PYTHIA8, HIJING, EPOS, AMPT, SIMPLE')
 parser.add_argument('-e', '--nEventsPerJob', default=200, type=int, help='Number of events to generate each job')
 parser.add_argument('-n', '--nTotEvents', default=-1, type=int, help='Total number of events to generate')
 parser.add_argument('--generatorOnly', help='Disable the detector simulation', action="store_true")
@@ -18,7 +18,7 @@ args = parser.parse_args()
 
 inputType = args.generator.upper()
 
-types = {'PYTHIA8', 'HIJING', 'SIMPLE'}
+types = {'PYTHIA8', 'HIJING', 'EPOS', 'AMPT', 'SIMPLE'}
 if inputType not in types:
   print("The generator, {}, was not known. Use --help to see available generators".format(args.inputType))
   sys.exit()
@@ -29,7 +29,7 @@ if myShell not in goodShells:
     print("Your shell {} was not recognised".format(myShell))
     sys.exit()
 
-softwareVersion = 'ana.398'
+softwareVersion = 'ana.399'
 
 simType = 'generatorOnly' if args.generatorOnly else 'fullSim'
 simTypeBool = 'false'  if args.generatorOnly else 'true'
@@ -51,8 +51,9 @@ else:
 
 nJob = math.ceil(args.nTotEvents/args.nEventsPerJob)
 
-
-memory = 6 if inputType == "HIJING" else 4
+memory = 2
+if inputType == 'PYTHIA8': memory = 4
+if (inputType == "HIJING" or inputType == "EPOS" or inputType == "AMPT"): memory = 6
 
 def makeCondorJob():
     print("Creating condor submission script for {} simulations".format(inputType))

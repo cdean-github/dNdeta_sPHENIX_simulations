@@ -168,7 +168,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
     Input::BEAM_CONFIGURATION = Input::pp_COLLISION;
     PYTHIA8::config_file = string(getenv("CALIBRATIONROOT")) + "/Generators/HeavyFlavor_TG/phpythia8_minBias_MDC2.cfg";
   } 
-  else if (generator == "HIJING") 
+  else if (generator == "HIJING" || generator == "EPOS" || generator == "AMPT") 
   {
     Input::HEPMC = true;
  
@@ -181,11 +181,17 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
 
     unsigned int width = 5;
     ostringstream correctFileNumber;
-    correctFileNumber << setfill('0') << setw(width) << fileNumber;
+    if (generator == "HIJING") correctFileNumber << setfill('0') << setw(width) << fileNumber;
+    else correctFileNumber << to_string(stoi(fileNumber));
 
-    INPUTHEPMC::filename = "/sphenix/sim/sim01/sphnxpro/MDC1/sHijing_HepMC/data/sHijing_0_20fm-0000000001-" + correctFileNumber.str() + ".dat";
+    if (generator == "HIJING") INPUTHEPMC::filename = "/sphenix/sim/sim01/sphnxpro/MDC1/sHijing_HepMC/data/sHijing_0_20fm-0000000001-" + correctFileNumber.str() + ".dat";
+    else if (generator == "EPOS") INPUTHEPMC::filename = "/sphenix/tg/tg01/commissioning/CaloCalibWG/sli/EPOS/condor1M/OutDir" + correctFileNumber.str() + "/z-expl6.hepmc";
+    else  INPUTHEPMC::filename = "/sphenix/tg/tg01/commissioning/CaloCalibWG/sli/AMPT/condor1M/OutDir" + correctFileNumber.str() + "/ana/ampt.hepmc";
+
     INPUTHEPMC::FLOW = true;
     INPUTHEPMC::FERMIMOTION = true;
+
+    if (generator == "EPOS" || generator == "AMPT") INPUTHEPMC::REACTIONPLANERAND = true;
 
     Input::BEAM_CONFIGURATION = Input::AA_COLLISION;
   }
@@ -203,7 +209,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
     INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_function(PHG4SimpleEventGenerator::Gaus, 
                                                                               PHG4SimpleEventGenerator::Gaus,
                                                                               PHG4SimpleEventGenerator::Gaus);
-    INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_mean(0., 0., 19.8);
+    INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_mean(0., 0., -19.8);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_vertex_distribution_width(120e-4, 120e-4, 5.2);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_eta_range(-0.5, 2.5);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_phi_range(-M_PI, M_PI);
