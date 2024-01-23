@@ -51,9 +51,7 @@ else:
 
 nJob = math.ceil(args.nTotEvents/args.nEventsPerJob)
 
-memory = 2
-if inputType == 'PYTHIA8': memory = 4
-if (inputType == "HIJING" or inputType == "EPOS" or inputType == "AMPT"): memory = 6
+memory = 6 if (inputType == "HIJING" or inputType == "EPOS" or inputType == "AMPT") else  4
 
 def makeCondorJob():
     print("Creating condor submission script for {} simulations".format(inputType))
