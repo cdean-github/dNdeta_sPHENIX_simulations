@@ -16,6 +16,9 @@
 #include "G4_Input.C"
 #include <G4_Magnet.C>
 
+//#include <centrality/CentralityReco.h>
+//#include <calotrigger/MinimumBiasClassifier.h>
+
 #include <Trkr_Clustering.C>
 #include <Trkr_Reco.C>
 #include <Trkr_RecoInit.C>
@@ -39,6 +42,8 @@
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libffamodules.so)
 R__LOAD_LIBRARY(libmetadatacontainer.so)
+//R__LOAD_LIBRARY(libcentrality.so)
+//R__LOAD_LIBRARY(libcalotrigger.so)
 
 bool checkForDir(string name) {
   DIR *dir = opendir(name.c_str());
@@ -89,6 +94,9 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
                              const string logFile = "logFile.txt",
                              const string particleType = "pi-")
 {
+  //gSystem->Load("libcentrality");
+  //gSystem->Load("libcalotrigger");
+
   // Get base file name
   DstOut::OutputDir = outputDir;
   string outputDirLastChar = DstOut::OutputDir.substr(DstOut::OutputDir.size() - 1, 1);
@@ -140,6 +148,9 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   // conditions DB flags
   //===============
   Enable::CDB = true;
+  //CDB::global_tag = "ProdA_2023";
+  //CDB::timestamp = 20869;
+  
   // global tag
   rc->set_StringFlag("CDB_GLOBALTAG", CDB::global_tag);
   // 64 bit timestamp
@@ -150,6 +161,7 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
   int segment = runseg.second;
   if (runnumber != 0) 
   {
+    //rc->set_IntFlag("RUNNUMBER", 20869);
     rc->set_IntFlag("RUNNUMBER", runnumber);
     Fun4AllSyncManager *syncman = se->getSyncManager();
     syncman->SegmentNumber(segment);
@@ -263,6 +275,8 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
     Enable::INTT = true;
     Enable::TPC = true;
     Enable::MICROMEGAS = true;
+    //Enable::ZDC = true;
+    //Enable::BEAMLINE = true;
   }
 
   G4Init();
@@ -270,6 +284,10 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
 
   if (fullSim) 
   {
+    //Centrality detectors
+    Mbd_Reco();
+    //ZDCInit();
+
     Mvtx_Cells();
     Intt_Cells();
     TrackingInit();
@@ -277,8 +295,18 @@ int Fun4All_dNdeta_simulator(const int nEvents = 1,
     Intt_Clustering();
   }
 
-  if (generator == "HIJING")
+  if (generator == "HIJING" || generator == "EPOS" || generator == "AMPT")
+  {
+    //CentralityReco *cr = new CentralityReco();
+    //cr->Verbosity(INT_MAX);
+    //se->registerSubsystem(cr);
+    //
+    //MinimumBiasClassifier *mb = new MinimumBiasClassifier();
+    //mb->Verbosity(INT_MAX);
+    //se->registerSubsystem(mb);
+
     Centrality();
+  }
 
   InputManagers();
 
