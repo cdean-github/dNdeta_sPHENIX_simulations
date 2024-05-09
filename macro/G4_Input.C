@@ -105,13 +105,19 @@ namespace Input
     {
     case AA_COLLISION:
       // heavy ion mode
-      HepMCGen->set_vertex_distribution_mean(-0.04, 0.24, -19.8, 0.);
-      //HepMCGen->set_vertex_distribution_mean(-0.04, 0.24, 0, 0.);
+      HepMCGen->set_vertex_distribution_mean(0.02466, 0.3358, -20.72, 0.);
+      // HepMCGen->set_vertex_distribution_mean(-0.04, 0.24, -19.8, 0.); // Previous settings
+      // HepMCGen->set_vertex_distribution_mean(-0.04, 0.24, 0, 0.);
+      // HepMCGen->set_vertex_distribution_width( // Previous settings
+      //     120e-4,         // approximation from past STAR/Run16 AuAu data
+      //     120e-4,         // approximation from past STAR/Run16 AuAu data
+      //     5.2,              // sPH-TRG-2022-001. Fig B.2
+      //     //30.,              // sPH-TRG-2022-001. Fig B.2
+      //     20 / 29.9792);  // 20cm collision length / speed of light in cm/ns
       HepMCGen->set_vertex_distribution_width(
           120e-4,         // approximation from past STAR/Run16 AuAu data
           120e-4,         // approximation from past STAR/Run16 AuAu data
-          5.2,              // sPH-TRG-2022-001. Fig B.2
-          //30.,              // sPH-TRG-2022-001. Fig B.2
+          6.364,              // sPH-TRG-2022-001. Fig B.2
           20 / 29.9792);  // 20cm collision length / speed of light in cm/ns
 
       break;

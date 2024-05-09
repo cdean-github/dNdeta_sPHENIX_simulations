@@ -2,6 +2,7 @@
 
 source /opt/sphenix/core/bin/sphenix_setup.sh -n $8
 
+# export MYINSTALL=/sphenix/u/hjheng/install
 export MYINSTALL=/sphenix/u/cdean/sPHENIX/install
 export LD_LIBRARY_PATH=$MYINSTALL/lib:$LD_LIBRARY_PATH
 export ROOT_INCLUDE_PATH=$MYINSTALL/include:$ROOT_INCLUDE_PATH
@@ -56,7 +57,8 @@ echo production script finished, writing metadata
 echo "" >> ${metaDataFile}
 echo Seeds: >> ${metaDataFile}
 grep 'seed:' ${tmpLogFile} >> ${metaDataFile}
-rm ${tmpLogFile}
+# rm ${tmpLogFile}
+mv ${tmpLogFile} ${finalPath}
 
 echo "" >> ${metaDataFile}
 echo md5sum: >> ${metaDataFile}

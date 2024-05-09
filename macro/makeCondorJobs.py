@@ -29,7 +29,7 @@ if myShell not in goodShells:
     print("Your shell {} was not recognised".format(myShell))
     sys.exit()
 
-softwareVersion = 'ana.405'
+softwareVersion = 'ana.413'
 
 simType = 'generatorOnly' if args.generatorOnly else 'fullSim'
 simTypeBool = 'false'  if args.generatorOnly else 'true'
@@ -51,7 +51,7 @@ else:
 
 nJob = math.ceil(args.nTotEvents/args.nEventsPerJob)
 
-memory = 6 if (inputType == "HIJING" or inputType == "EPOS" or inputType == "AMPT") else  4
+memory = 10 if (inputType == "HIJING" or inputType == "EPOS" or inputType == "AMPT") else 8
 
 def makeCondorJob():
     print("Creating condor submission script for {} simulations".format(inputType))
