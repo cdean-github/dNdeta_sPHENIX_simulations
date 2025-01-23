@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
-lib_LTLIBRARIES = libmetadata.la
+lib_LTLIBRARIES = \
+  libmetadata.la
 
 AM_CPPFLAGS = \
   -I$(includedir) \

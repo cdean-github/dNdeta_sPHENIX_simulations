@@ -2,7 +2,8 @@
 
 source /opt/sphenix/core/bin/sphenix_setup.sh -n $8
 
-export MYINSTALL=/sphenix/u/cdean/sPHENIX/install
+# export MYINSTALL=/sphenix/u/cdean/sPHENIX/install
+export MYINSTALL=/sphenix/u/hjheng/install
 export LD_LIBRARY_PATH=$MYINSTALL/lib:$LD_LIBRARY_PATH
 export ROOT_INCLUDE_PATH=$MYINSTALL/include:$ROOT_INCLUDE_PATH
 
@@ -36,7 +37,7 @@ EOF
 
 # Run Fun4all. Send output to stdout but also capture to temporary local file
 echo running root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\",\"$9\"\)
-root.exe -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\",\"$9\"\) | tee ${tmpLogFile}
+root -q -b Fun4All_dNdeta_simulator.C\($1,\"$2\",\"$3\",\"$4\",$5,$6,$7,\"${tmpLogFile}\",\"$9\"\) | tee ${tmpLogFile}
 
 finalPath=`grep 'Your final output path is' ${tmpLogFile} | awk '{print $NF}'`
 
@@ -56,7 +57,8 @@ echo production script finished, writing metadata
 echo "" >> ${metaDataFile}
 echo Seeds: >> ${metaDataFile}
 grep 'seed:' ${tmpLogFile} >> ${metaDataFile}
-rm ${tmpLogFile}
+# rm ${tmpLogFile}
+mv ${tmpLogFile} ${finalPath}
 
 echo "" >> ${metaDataFile}
 echo md5sum: >> ${metaDataFile}
