@@ -16,6 +16,7 @@
 #include <G4_Centrality.C>
 #include <G4_Global.C>
 #include <G4_Magnet.C>
+#include <G4_ZDC.C>
 
 #include <centrality/CentralityReco.h>
 #include <calotrigger/MinimumBiasClassifier.h>
